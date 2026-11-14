@@ -7,7 +7,8 @@ x-app: &app
   image: burkina-motors-php
   volumes:
     - .:/var/www/html
-  env_file: .env
+    # vendor dans un volume Docker : beaucoup plus rapide que le dossier partagé Windows
+    - vendor:/var/www/html/vendor
   depends_on:
     db:
       condition: service_healthy
@@ -62,3 +63,4 @@ services:
 
 volumes:
   dbdata:
+  vendor:

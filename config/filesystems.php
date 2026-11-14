@@ -38,6 +38,22 @@ return [
             'report' => false,
         ],
 
+        // Documents scannés (chiffrés, jamais servis directement sur le web)
+        'documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/documents'),
+            'serve' => false,
+            'throw' => true,
+        ],
+
+        // Sauvegardes chiffrées (jamais servies sur le web)
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backups'),
+            'serve' => false,
+            'throw' => true,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
