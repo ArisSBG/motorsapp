@@ -80,6 +80,12 @@ class FactureFournisseur extends Model
             ->selectRaw('(('.self::sqlTotal().') - ('.self::sqlVerse().')) as solde');
     }
 
+    /** Seulement les factures pas encore soldées. */
+    public function scopeNonSoldees(Builder $query): Builder
+    {
+        return $query->whereRaw('(('.self::sqlTotal().') - ('.self::sqlVerse().')) > 0');
+    }
+
     public function total(): int
     {
         return $this->totalCalcule('total');

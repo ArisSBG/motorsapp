@@ -4,6 +4,8 @@ namespace App\Filament\Auth;
 
 use App\Models\User;
 use Filament\Auth\Pages\Login as BaseLogin;
+use Filament\Forms\Components\Hidden;
+use Filament\Schemas\Components\Component;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
@@ -22,6 +24,15 @@ class Login extends BaseLogin
         }
 
         return parent::rateLimit($maxAttempts, $decaySeconds, $method, $component);
+    }
+
+    /**
+     * Pas de case « Se souvenir de moi » : elle garderait la session ouverte des mois,
+     * alors que le cahier des charges prévoit une déconnexion après 12 heures.
+     */
+    protected function getRememberFormComponent(): Component
+    {
+        return Hidden::make('remember')->default(false)->dehydrateStateUsing(fn () => false);
     }
 
     /** Compte actif avec au moins un espace : la redirection se fait ensuite (LoginResponse). */

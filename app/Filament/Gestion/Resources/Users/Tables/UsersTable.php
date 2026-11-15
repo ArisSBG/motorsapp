@@ -3,6 +3,7 @@
 namespace App\Filament\Gestion\Resources\Users\Tables;
 
 use App\Enums\Role;
+use App\Filament\Gestion\Resources\Users\ActionDeconnexion;
 use App\Models\User;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -35,6 +36,7 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                ActionDeconnexion::make(),
             ]);
     }
 }

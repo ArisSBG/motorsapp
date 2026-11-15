@@ -39,12 +39,21 @@ class Client extends Model
     /** Ajoute la colonne `reste_du` : ce que le client doit encore (ventes non annulées). */
     public function scopeAvecResteDu(Builder $query): Builder
     {
-        return $query->addSelect([
-            'reste_du' => Vente::query()
-                ->selectRaw('COALESCE(SUM('.Vente::sqlReste().'), 0)')
-                ->whereColumn('ventes.client_id', 'clients.id')
-                ->where('ventes.statut', '!=', StatutVente::Annulee->value),
-        ]);
+        return $query->addSelect(['reste_du' => self::sousRequeteResteDu()]);
+    }
+
+    /** Seulement les clients qui doivent encore de l'argent (SQL standard, sans HAVING). */
+    public function scopeDoitEncore(Builder $query): Builder
+    {
+        return $query->where(self::sousRequeteResteDu(), '>', 0);
+    }
+
+    private static function sousRequeteResteDu(): Builder
+    {
+        return Vente::query()
+            ->selectRaw('COALESCE(SUM('.Vente::sqlReste().'), 0)')
+            ->whereColumn('ventes.client_id', 'clients.id')
+            ->where('ventes.statut', '!=', StatutVente::Annulee->value);
     }
 
     public function resteDu(): int

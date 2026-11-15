@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Auth\Profil;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -34,7 +35,7 @@ class PapiersPanelProvider extends PanelProvider
             ->path('papiers')
             ->brandName('BURKINA MOTORS — Papiers')
             ->login(Login::class)
-            ->profile(isSimple: false)
+            ->profile(Profil::class, isSimple: false)
             // Double vérification par application (Google Authenticator…), activable depuis le profil.
             // Obligatoire pour l'administrateur en production (cahier des charges, 6.1).
             ->multiFactorAuthentication(

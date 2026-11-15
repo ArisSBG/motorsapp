@@ -12,6 +12,9 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 /** Ce qu'il y a à faire aujourd'hui côté papiers. */
 class ApercuPapiers extends StatsOverviewWidget
 {
+    // Chargé tout de suite (pas d’affichage « Chargement… »)
+    protected static bool $isLazy = false;
+
     protected static ?int $sort = -1;
 
     protected function getStats(): array

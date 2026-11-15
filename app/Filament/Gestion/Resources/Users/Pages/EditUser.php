@@ -2,12 +2,20 @@
 
 namespace App\Filament\Gestion\Resources\Users\Pages;
 
+use App\Filament\Gestion\Resources\Users\ActionDeconnexion;
 use App\Filament\Gestion\Resources\Users\UserResource;
 use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ActionDeconnexion::make(),
+        ];
+    }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {

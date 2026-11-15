@@ -59,7 +59,7 @@ class FactureFournisseursTable
             ->filters([
                 Filter::make('non_soldees')
                     ->label('Non soldées')
-                    ->query(fn (Builder $query) => $query->having('solde', '>', 0)),
+                    ->query(fn (Builder $query) => $query->nonSoldees()),
                 SelectFilter::make('fournisseur')
                     ->relationship('fournisseur', 'nom')
                     ->searchable()

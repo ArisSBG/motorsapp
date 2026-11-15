@@ -2,7 +2,9 @@
 
 namespace App\Filament\Gestion\Widgets;
 
+use App\Filament\Gestion\Resources\Clients\ClientResource;
 use App\Filament\Gestion\Resources\Fournisseurs\FournisseurResource;
+use App\Models\Client;
 use App\Filament\Gestion\Resources\Motos\MotoResource;
 use App\Models\Fournisseur;
 use App\Models\Moto;
@@ -17,7 +19,14 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
  */
 class ApercuStock extends StatsOverviewWidget
 {
-    protected static ?int $sort = -1;
+    // Chargé tout de suite (pas d’affichage « Chargement… »)
+    protected static bool $isLazy = false;
+
+    protected static ?int $sort = 0;
+
+    protected int|string|array $columnSpan = 'full';
+
+    protected ?string $heading = 'Situation actuelle';
 
     protected function getStats(): array
     {
@@ -34,6 +43,10 @@ class ApercuStock extends StatsOverviewWidget
                 ->icon(Heroicon::OutlinedTruck)
                 ->color('danger')
                 ->url(FournisseurResource::getUrl('index'));
+            $stats[] = Stat::make('Total dû par les clients', Montant::format(Client::totalDu()))
+                ->icon(Heroicon::OutlinedUserGroup)
+                ->color('warning')
+                ->url(ClientResource::getUrl('index'));
         }
 
         return $stats;

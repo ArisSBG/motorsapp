@@ -22,6 +22,10 @@ return [
     // Papiers remis avant paiement complet si le reste dû ne dépasse pas ce montant (questionnaire 6.7)
     'seuil_remise_papiers' => (int) env('SEUIL_REMISE_PAPIERS', 50000),
 
+    // Premier compte administrateur créé par le seeder (à retirer du .env après l'installation)
+    'admin_email' => env('ADMIN_EMAIL'),
+    'admin_password' => env('ADMIN_PASSWORD'),
+
     // Alerte quand une moto vendue n'a toujours pas sa carte grise après N jours (proposition : 90)
     'jours_alerte_papiers' => (int) env('JOURS_ALERTE_PAPIERS', 90),
 ];

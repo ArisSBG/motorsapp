@@ -22,7 +22,15 @@ use App\Observers\VenteObserver;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContrat;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
+use App\Models\User;
+use App\Observers\UserObserver;
+use App\Services\SessionsUtilisateur;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Middleware\TrustProxies;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -56,6 +64,33 @@ class AppServiceProvider extends ServiceProvider
 
         // Mots de passe : 8 caractères minimum, lettres et chiffres
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
+
+        // Compte désactivé ou mot de passe changé par l'admin : déconnexion de tous les appareils
+        User::observe(UserObserver::class);
+
+        // Journal des connexions : réussies, échouées (identifiant tenté, jamais le mot de passe), déconnexions
+        Event::listen(Login::class, fn (Login $e) => activity('connexions')
+            ->causedBy($e->user)->event('connexion')
+            ->withProperties(['ip' => request()->ip(), 'appareil' => SessionsUtilisateur::decrireAppareil((string) request()->userAgent())])
+            ->log('Connexion'));
+        Event::listen(Failed::class, fn (Failed $e) => activity('connexions')
+            ->causedBy($e->user)->event('echec_connexion')
+            ->withProperties(['identifiant' => $e->credentials['email'] ?? null, 'ip' => request()->ip()])
+            ->log('Échec de connexion'));
+        Event::listen(Logout::class, fn (Logout $e) => activity('connexions')
+            ->causedBy($e->user)->event('deconnexion')
+            ->log('Déconnexion'));
+
+        // Derrière Cloudflare : adresse IP réelle du visiteur et détection du HTTPS (en-têtes X-Forwarded-*)
+        if (filled($proxies = config('app.trusted_proxies'))) {
+            TrustProxies::at($proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
+
+        // Garde-fou : jamais de mode debug en production (il afficherait le code et la configuration)
+        if ($this->app->isProduction() && config('app.debug')) {
+            config(['app.debug' => false]);
+            logger()->warning('APP_DEBUG=true en production : forcé à false. Corriger le fichier .env.');
+        }
 
         // En développement : erreur si un champ envoyé n'est pas enregistrable (évite les pertes silencieuses)
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());

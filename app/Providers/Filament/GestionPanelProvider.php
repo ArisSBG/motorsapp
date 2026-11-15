@@ -3,18 +3,17 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Auth\Profil;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationItem;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -35,7 +34,7 @@ class GestionPanelProvider extends PanelProvider
             ->path('gestion')
             ->brandName('BURKINA MOTORS — Gestion')
             ->login(Login::class)
-            ->profile(isSimple: false)
+            ->profile(Profil::class, isSimple: false)
             // Double vérification par application (Google Authenticator…), activable depuis le profil.
             // Obligatoire pour l'administrateur en production (cahier des charges, 6.1).
             ->multiFactorAuthentication(
@@ -55,14 +54,9 @@ class GestionPanelProvider extends PanelProvider
                     ->visible(fn (): bool => (bool) auth()->user()?->panneaux()->contains('papiers')),
             ])
             ->discoverResources(in: app_path('Filament/Gestion/Resources'), for: 'App\Filament\Gestion\Resources')
+            // Le tableau de bord (App\Filament\Gestion\Pages\TableauDeBord) est trouvé ici
             ->discoverPages(in: app_path('Filament/Gestion/Pages'), for: 'App\Filament\Gestion\Pages')
-            ->pages([
-                Dashboard::class,
-            ])
             ->discoverWidgets(in: app_path('Filament/Gestion/Widgets'), for: 'App\Filament\Gestion\Widgets')
-            ->widgets([
-                AccountWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

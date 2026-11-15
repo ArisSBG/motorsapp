@@ -40,7 +40,7 @@ class ClientsTable
             ->filters([
                 Filter::make('debiteurs')
                     ->label('Clients qui doivent encore de l’argent')
-                    ->query(fn (Builder $query) => $query->having('reste_du', '>', 0)),
+                    ->query(fn (Builder $query) => $query->doitEncore()),
                 SelectFilter::make('type')->options(TypeClient::class),
                 TrashedFilter::make()->label('Corbeille'),
             ])

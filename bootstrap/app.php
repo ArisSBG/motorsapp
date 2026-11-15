@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Visiteur non connecté qui ouvre un document : vers la page de connexion
         $middleware->redirectGuestsTo('/gestion/login');
+
+        // En-têtes de sécurité sur toutes les pages
+        $middleware->append(\App\Http\Middleware\EnTetesSecurite::class);
+
+        // Proxys de confiance (Cloudflare) : réglés dans AppServiceProvider, une fois la configuration chargée.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

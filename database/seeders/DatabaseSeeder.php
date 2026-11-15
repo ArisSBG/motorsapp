@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesSeeder::class);
 
         // Premier compte administrateur : identifiants lus dans .env (jamais dans le code)
-        $email = env('ADMIN_EMAIL');
-        $motDePasse = env('ADMIN_PASSWORD');
+        $email = config('entreprise.admin_email');
+        $motDePasse = config('entreprise.admin_password');
 
         if (! $email || ! $motDePasse) {
             throw new RuntimeException('Renseigner ADMIN_EMAIL et ADMIN_PASSWORD dans .env avant de lancer le seeder.');

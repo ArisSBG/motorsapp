@@ -43,7 +43,7 @@ class FournisseursTable
             ->filters([
                 Filter::make('doit')
                     ->label('Avec un reste à payer')
-                    ->query(fn (Builder $query) => $query->having('reste_a_payer', '>', 0)),
+                    ->query(fn (Builder $query) => $query->doitEncore()),
                 TrashedFilter::make()->label('Corbeille'),
             ])
             ->recordActions([

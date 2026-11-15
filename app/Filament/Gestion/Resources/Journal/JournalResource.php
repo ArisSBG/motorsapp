@@ -39,11 +39,18 @@ class JournalResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    private const EVENEMENTS = ['created' => 'Création', 'updated' => 'Modification', 'deleted' => 'Suppression', 'restored' => 'Restauration'];
+    private const EVENEMENTS = [
+        'created' => 'Création', 'updated' => 'Modification', 'deleted' => 'Suppression', 'restored' => 'Restauration',
+        'connexion' => 'Connexion', 'echec_connexion' => 'Échec de connexion', 'deconnexion' => 'Déconnexion',
+        'deconnexion_forcee' => 'Déconnexion forcée',
+    ];
 
     private const ELEMENTS = [
         'moto' => 'Moto', 'fournisseur' => 'Fournisseur', 'facture_fournisseur' => 'Facture fournisseur',
         'versement_fournisseur' => 'Versement fournisseur', 'frais_moto' => 'Frais moto', 'comptes' => 'Compte utilisateur',
+        'client' => 'Client', 'vente' => 'Vente', 'vente_ligne' => 'Moto vendue', 'paiement_client' => 'Paiement client',
+        'echeance' => 'Échéance', 'immatriculation' => 'Immatriculation', 'retrait' => 'Remise de papiers',
+        'document' => 'Document', 'objectif_vente' => 'Objectif de ventes', 'connexions' => 'Connexions',
     ];
 
     public static function canViewAny(): bool
@@ -75,8 +82,12 @@ class JournalResource extends Resource
                 TextEntry::make('causer.name')->label('Par')->placeholder('Système'),
                 TextEntry::make('event')->label('Action')->formatStateUsing(fn (?string $state) => self::EVENEMENTS[$state] ?? $state),
                 TextEntry::make('log_name')->label('Élément')->formatStateUsing(fn (?string $state) => self::ELEMENTS[$state] ?? $state),
-                KeyValueEntry::make('attribute_changes.old')->label('Avant')->columnSpanFull(),
-                KeyValueEntry::make('attribute_changes.attributes')->label('Après')->columnSpanFull(),
+                KeyValueEntry::make('attribute_changes.old')->label('Avant')->columnSpanFull()
+                    ->visible(fn (Activity $record) => filled($record->attribute_changes?->get('old'))),
+                KeyValueEntry::make('attribute_changes.attributes')->label('Après')->columnSpanFull()
+                    ->visible(fn (Activity $record) => filled($record->attribute_changes?->get('attributes'))),
+                KeyValueEntry::make('properties')->label('Détails (adresse IP, appareil…)')->columnSpanFull()
+                    ->visible(fn (Activity $record) => filled($record->properties?->all())),
             ]);
     }
 
@@ -93,7 +104,8 @@ class JournalResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (?string $state) => self::EVENEMENTS[$state] ?? $state)
                     ->color(fn (?string $state) => match ($state) {
-                        'created' => 'success', 'updated' => 'warning', 'deleted' => 'danger', default => 'gray',
+                        'created', 'connexion' => 'success', 'updated' => 'warning',
+                        'deleted', 'echec_connexion', 'deconnexion_forcee' => 'danger', default => 'gray',
                     }),
                 TextColumn::make('log_name')->label('Élément')->formatStateUsing(fn (?string $state) => self::ELEMENTS[$state] ?? $state),
                 TextColumn::make('subject_id')->label('N°'),

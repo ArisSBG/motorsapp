@@ -31,11 +31,20 @@ class Fournisseur extends Model
      */
     public function scopeAvecResteAPayer(Builder $query): Builder
     {
-        return $query->addSelect([
-            'reste_a_payer' => FactureFournisseur::query()
-                ->selectRaw('COALESCE(SUM(('.FactureFournisseur::sqlTotal().') - ('.FactureFournisseur::sqlVerse().')), 0)')
-                ->whereColumn('factures_fournisseur.fournisseur_id', 'fournisseurs.id'),
-        ]);
+        return $query->addSelect(['reste_a_payer' => self::sousRequeteResteAPayer()]);
+    }
+
+    /** Seulement les fournisseurs à qui l'on doit encore de l'argent. */
+    public function scopeDoitEncore(Builder $query): Builder
+    {
+        return $query->where(self::sousRequeteResteAPayer(), '>', 0);
+    }
+
+    private static function sousRequeteResteAPayer(): Builder
+    {
+        return FactureFournisseur::query()
+            ->selectRaw('COALESCE(SUM(('.FactureFournisseur::sqlTotal().') - ('.FactureFournisseur::sqlVerse().')), 0)')
+            ->whereColumn('factures_fournisseur.fournisseur_id', 'fournisseurs.id');
     }
 
     /** Reste à payer à ce fournisseur, en FCFA. */
